@@ -1,0 +1,12 @@
+# Wikipedia MCP Tool
+
+This project is an MCP-based Wikipedia search tool using Python.
+
+## Features
+- Fetch Wikipedia summary
+- Handle errors (disambiguation, missing pages)
+- MCP tool integration
+
+## Run
+```bash
+python mcp-server.py
