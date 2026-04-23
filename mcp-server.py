@@ -1,7 +1,7 @@
 import wikipedia
 from mcp.server.fastmcp import FastMCP
 
-mcp = FastMCP("WikipediaSearch")
+mcp = FastMCP("WikipediaSearch") 
 
 @mcp.tool()
 
@@ -10,7 +10,7 @@ def fetch_wikipedia_info(query: str) -> dict:
     Search Wikipedia for a topic and return title, summary, and URL of the best match.
     """
     try:
-        search_results = wikipedia.search(query)
+        search_results = wikipedia.search(query, results=5)
         if not search_results:
             return {"error": "No results found for your query."}
 
