@@ -1,8 +1,9 @@
 # Wikipedia MCP Tool
 
 This project is an MCP-based Wikipedia search tool using Python.
+Auth: Praveen Mourya 
 
-## Features
+### Features
 - Fetch Wikipedia summary
 - Handle errors (disambiguation, missing pages)
 - MCP tool integration
