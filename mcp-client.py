@@ -1,5 +1,6 @@
 import asyncio
 import os
+import shlex
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 
@@ -67,6 +68,51 @@ async def create_graph(session):
 
     return graph.compile(checkpointer=MemorySaver())
 
+async def handle_resource(session, command):
+    parts = shlex.split(command)
+    if len(parts) < 2:
+        print("Usage: /resource <name>")
+        return
+    resource_id = parts[1]
+    try:
+        # Get all available resources
+        response = await session.list_resources()
+        resources = response.resources
+        resource_map = {str(i + 1): r.name for i, r in enumerate(resources)}
+
+        # Resolve name or index
+        resource_name = resource_map.get(resource_id, resource_id)
+        match = next((r for r in resources if r.name == resource_name), None)
+
+        if not match:
+            print(f"Resource '{resource_id}' not found.")
+            return
+
+        # Fetch resource content
+        result = await session.read_resource(match.uri)
+
+        for content in result.contents:
+            if hasattr(content, "text"):
+                print("\n=== Resource Text ===")
+                print(content.text)
+
+
+    except Exception as e:
+        print("Error fetching resource:", str(e))
+
+async def list_resource(session):
+    try:
+        resource = await session.list_resources()
+        if not resource or not resource.resources:
+            print("No resources found on the MCP server.")
+            return
+        print("Available resources on the MCP server:")
+        for i, r in enumerate(resource.resources, 1):
+            print(f"[{i}] {r.name}")
+        print("\nUse: /resource <name> to view its content.")
+    except Exception as e:
+        print("Error fetching resources:", str(e))
+
 
 # Entry point
 async def main():
@@ -81,7 +127,15 @@ async def main():
                 user_input = input("\nYou: ").strip()
                 if user_input.lower() in {"exit", "quit", "q"}:
                     break
-
+                elif user_input.startswith("/resources"):
+                    parts = user_input.split()
+                    if len(parts) == 1:
+                        # No arguments: list all resources
+                        await list_resource(session)
+                    else:
+                        # With arguments: fetch specific resource
+                        await handle_resource(session, user_input)
+                    continue
                 if not user_input:
                     continue
 
