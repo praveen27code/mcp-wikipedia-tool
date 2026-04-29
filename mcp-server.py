@@ -1,7 +1,23 @@
+from urllib import response
+from pathlib import Path
+
 import wikipedia
 from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP("WikipediaSearch") 
+
+@mcp.resource("file://priceList.txt")
+def priceList()-> list[str]:
+    """
+    Read and return suggested PriceList topics from a local file.
+    """
+    try:
+        path = Path("priceList.txt")
+        if not path.exists():
+            return ["File not found"]
+        return path.read_text(encoding="utf-8").strip().splitlines()
+    except Exception as e:
+        return [f"Error reading file: {str(e)}"]
 
 async def list_prompts(session):
     prompt_response = await session.list_prompts()
